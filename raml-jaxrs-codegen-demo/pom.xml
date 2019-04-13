@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>raml-jaxrs-codegen-demo</artifactId>
+
+    <parent>
+        <groupId>demo.testing</groupId>
+        <artifactId>contractTestingDemo</artifactId>
+        <version>1.0-SNAPSHOP</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-core</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>javax.activation-api</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.raml.jaxrs</groupId>
+                <artifactId>raml-to-jaxrs-maven-plugin</artifactId>
+                <version>3.0.5</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>javax.servlet-api</artifactId>
+                        <version>4.0.1</version>
+                    </dependency>
+                </dependencies>
+
+                <executions>
+                    <execution>
+                        <id>raml-iam-client-generate</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+
+                        <configuration>
+                            <jsonMapperConfiguration>
+                                <useLongIntegers>false</useLongIntegers>
+                                <generateBuilders>false</generateBuilders>
+                                <includeHashcodeAndEquals>true</includeHashcodeAndEquals>
+                                <includeToString>true</includeToString>
+                            </jsonMapperConfiguration>
+                            <jsonMapper>jackson2</jsonMapper>
+                            <removeOldOutput>true</removeOldOutput>
+                            <generateTypesWith>
+                                <value>simpleResponseObjects</value>
+                            </generateTypesWith>
+                            <ramlFile>
+                                ../../contractTestingDemo/swagger-RAML10.raml
+                            </ramlFile>
+                            <modelPackage>lawrynowicz.demo.raml.api.model</modelPackage>
+                            <resourcePackage>lawrynowicz.demo.raml.api.resource</resourcePackage>
+                            <supportPackage>lawrynowicz.demo.raml.api.support</supportPackage>
+                            <outputDirectory>${project.build.directory}/generated-sources/jaxrs-to-raml
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <!--                obejście błędu z niepoprawnym generowaniem klas (użycia String i Object z innego pakietu niż java.lang)-->
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <basedir>${project.build.directory}/generated-sources/jaxrs-to-raml</basedir>
+                    <includes>
+                        <include>**/*.java</include>Ł
+                    </includes>
+                    <regex>true</regex>
+                    <replacements>
+                        <replacement>
+                            <token>import [^ ]*\.(Object|String);</token>
+                        </replacement>
+                        <replacement>
+                            <token>[^ ]*\.Object</token>
+                            <value>Object</value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
+</project>
